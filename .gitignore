@@ -1,0 +1,19 @@
+server/data/
+server/*.log
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+firmware/.pio/
+firmware/include/CheckerV2Config.h
+*.bin
+*.elf
+*.map
+local.*
+.env
+.env.*
+!.env.example
+node_modules/
+__pycache__/
+*.pyc
+# Unrelated local video-editing workspace.
+/work/

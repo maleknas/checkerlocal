@@ -1,0 +1,842 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>RAVENA Checker</title>
+  <style>
+    :root {
+      --bg: #0d0d12;
+      --bg-soft: #111117;
+      --surface: #17171f;
+      --surface-elevated: #1f1f2a;
+      --surface-strong: #20202a;
+      --border: #30303b;
+      --border-soft: rgba(255,255,255,0.08);
+      --text: #f4f1ea;
+      --muted: #aba8b6;
+      --accent: #8b7cf6;
+      --accent-strong: #7a6ae6;
+      --success: #68c38a;
+      --warning: #e5bb62;
+      --danger: #df726d;
+      --input: #111118;
+      --shadow: rgba(7, 7, 12, 0.5);
+      --radius: 16px;
+      --radius-sm: 12px;
+      --font-stack: "Segoe UI", "Inter", "Arial", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: var(--font-stack);
+      font-size: 16px;
+      line-height: 1.45;
+      color: var(--text);
+      background: var(--bg);
+      background-image: url('/style/endless%20lines.png');
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: cover;
+      background-attachment: fixed;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(13, 13, 18, 0.72);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    img { max-width: 100%; display: block; }
+    button, input, select, textarea { font: inherit; }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 18px 16px 36px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: rgba(17, 17, 23, 0.8);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: saturate(120%) blur(8px);
+    }
+
+    .head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 0 12px;
+      flex-wrap: wrap;
+    }
+
+    .brand-block {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-height: 60px;
+    }
+
+    .brand-logo {
+      height: 46px;
+      width: auto;
+      object-fit: contain;
+      opacity: 0.96;
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.18));
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-name {
+      font-size: 0.92rem;
+      font-weight: 800;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .brand-tag {
+      font-size: 0.66rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .statusline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      line-height: 1.2;
+      letter-spacing: 0.03em;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .pill.ok {
+      background: rgba(104, 195, 138, 0.12);
+      color: var(--success);
+      border-color: rgba(104,195,138,0.4);
+    }
+
+    .pill.warn {
+      background: rgba(229, 187, 98, 0.08);
+      color: var(--warning);
+      border-color: rgba(229,187,98,0.35);
+    }
+
+    .pill.bad {
+      background: rgba(223, 114, 109, 0.12);
+      color: var(--danger);
+      border-color: rgba(223,114,109,0.4);
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    nav {
+      display: flex;
+      gap: 8px;
+      padding: 8px 0 18px;
+      flex-wrap: wrap;
+    }
+
+    nav button, .btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: rgba(26, 26, 34, 0.86);
+      color: var(--text);
+      border-radius: var(--radius-sm);
+      min-height: 44px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+      font-weight: 600;
+    }
+
+    nav button:hover, .btn:hover {
+      border-color: rgba(139,124,246,0.65);
+      transform: translateY(-1px);
+    }
+
+    nav button.active, .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    nav button.active:hover, .btn.primary:hover {
+      background: var(--accent-strong);
+      border-color: var(--accent-strong);
+    }
+
+    .btn.secondary {
+      background: rgba(255,255,255,0.02);
+    }
+
+    .btn.danger {
+      background: rgba(223, 114, 109, 0.08);
+      border-color: rgba(223,114,109,0.38);
+      color: var(--danger);
+    }
+
+    .page {
+      width: 100%;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 20px 0 14px;
+      flex-wrap: wrap;
+    }
+
+    .page-header h2 {
+      margin: 0;
+      font-size: clamp(1.3rem, 3vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .page-header .instruction {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .card {
+      background: rgba(23, 23, 31, 0.96);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 14px 32px rgba(0,0,0,0.12);
+      margin-bottom: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .metric {
+      font-size: clamp(1.6rem, 2.4vw, 2.2rem);
+      line-height: 1.1;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: var(--text);
+      margin-top: 8px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .toolbar label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      min-width: 140px;
+      flex: 1 1 160px;
+    }
+
+    .toolbar input, .toolbar select, .toolbar textarea,
+    dialog input, dialog select, dialog textarea {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--input);
+      color: var(--text);
+    }
+
+    .toolbar textarea, dialog textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: rgba(171,168,182,0.8);
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: rgba(15,15,21,0.5);
+    }
+
+    table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    th {
+      background: rgba(255,255,255,0.02);
+      color: var(--muted);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    tbody tr:hover {
+      background: rgba(255,255,255,0.02);
+    }
+
+    .pager {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .pager .btn {
+      min-height: 36px;
+      padding: 7px 10px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .statusline .pill, .scan, .big {
+      white-space: normal;
+    }
+
+    .big {
+      font-size: clamp(1.5rem, 2.7vw, 2.2rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      margin: 0;
+    }
+
+    .scan {
+      font-size: clamp(1.4rem, 3vw, 2.1rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      margin-top: 10px;
+      color: var(--text);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .report {
+      max-height: 420px;
+      overflow: auto;
+      margin-top: 12px;
+    }
+
+    #ready {
+      margin-top: 12px;
+    }
+
+    .kicker {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .mini-note {
+      color: var(--muted);
+      font-size: 0.82rem;
+      margin: 8px 0 0;
+    }
+
+    .toast {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 20;
+      width: min(420px, calc(100vw - 32px));
+      padding: 13px 14px;
+      border: 1px solid rgba(139,124,246,0.5);
+      border-radius: var(--radius-sm);
+      background: rgba(31,31,42,0.98);
+      color: var(--text);
+      box-shadow: 0 18px 38px rgba(0,0,0,0.28);
+    }
+
+    .toast.success {
+      border-color: rgba(104,195,138,0.45);
+    }
+
+    .toast.error {
+      border-color: rgba(223,114,109,0.48);
+      color: #ffd8d5;
+    }
+
+    .field-error {
+      min-height: 1.1em;
+      margin: 4px 0 0;
+      color: #ffaaa5;
+      font-size: 0.82rem;
+    }
+
+    .assignment-status {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid rgba(139,124,246,0.45);
+      border-radius: var(--radius-sm);
+      background: rgba(139,124,246,0.09);
+    }
+
+    .assignment-status h3 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+    }
+
+    .assignment-status p {
+      margin: 4px 0;
+    }
+
+    #csvText {
+      width: 100%;
+      min-height: 280px;
+      font-family: Consolas, "Courier New", monospace;
+      white-space: pre;
+      overflow: auto;
+    }
+
+    dialog {
+      width: min(560px, calc(100vw - 24px));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #14141b;
+      color: var(--text);
+      padding: 0;
+    }
+
+    dialog::backdrop {
+      background: rgba(5, 5, 10, 0.7);
+    }
+
+    .dialog-inner {
+      padding: 20px 18px 16px;
+    }
+
+    .dialog-inner h3 {
+      margin: 0 0 12px;
+      font-size: 1.3rem;
+    }
+
+    .dialog-body {
+      display: grid;
+      gap: 12px;
+    }
+
+    .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .wide-dialog {
+      width: min(720px, calc(100vw - 24px));
+    }
+
+    @media (max-width: 720px) {
+      .wrap {
+        padding: 12px 12px 28px;
+      }
+
+      .brand-logo {
+        height: 36px;
+      }
+
+      .brand-name {
+        letter-spacing: 0.14em;
+      }
+
+      .head {
+        align-items: flex-start;
+      }
+
+      nav {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      nav button, .btn {
+        width: 100%;
+      }
+
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .toolbar label {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .page-header {
+        align-items: flex-start;
+      }
+
+      .card {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <div class="head">
+        <div class="brand-block">
+          <img class="brand-logo" src="/style/logo%20text.png" alt="RAVENA logo">
+          <div class="brand-text">
+            <div class="brand-name">Checker</div>
+            <div class="brand-tag">Event control</div>
+          </div>
+        </div>
+        <div class="statusline">
+          <span id="conn" class="pill warn">Connecting</span>
+          <span id="state" class="pill">Paused</span>
+          <span id="reader" class="pill">Reader</span>
+          <button id="recoverReaderBtn" class="btn secondary" onclick="recoverReader()">Recover reader</button>
+          <span class="pill ok">Time source: PC</span>
+          <button id="newEventTopBtn" class="btn secondary" onclick="openNewEventFlow()">New event</button>
+        </div>
+      </div>
+      <nav>
+        <button id="nav-dashboard" onclick="showPage('dashboard')">Dashboard</button>
+        <button id="nav-assignment" onclick="showPage('assignment')">Assignment</button>
+        <button id="nav-checkin" onclick="showPage('checkin')">Check-in</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="dashboard" class="page">
+      <div class="page-header">
+        <h2>Dashboard</h2>
+        <div id="eventLine" class="instruction">No event created</div>
+      </div>
+
+      <div id="setup" class="card hidden">
+        <div class="kicker">Event setup</div>
+        <div class="toolbar">
+          <label>
+            Event name
+            <input id="eventName">
+          </label>
+          <label>
+            Event date
+            <input id="eventDate" type="date">
+          </label>
+          <button class="btn primary" onclick="saveEvent()">Save event</button>
+          <span class="pill ok">Time source: PC</span>
+        </div>
+      </div>
+
+      <div id="summary" class="grid"></div>
+
+      <div class="card">
+        <div class="toolbar">
+          <input id="search" placeholder="Search name" oninput="resetPeoplePage()">
+          <select id="typeFilter" onchange="resetPeoplePage()">
+            <option>All</option>
+            <option>Participants</option>
+            <option>OC</option>
+          </select>
+          <select id="attFilter" onchange="resetPeoplePage()">
+            <option>All</option>
+            <option>Present</option>
+            <option>Absent</option>
+          </select>
+          <button class="btn secondary" onclick="openPerson()">Add person</button>
+          <button class="btn primary" onclick="setMode('CHECK_IN')">Resume check-in</button>
+          <button class="btn secondary" onclick="setMode('IDLE')">Pause</button>
+        </div>
+        <p id="matchCount" class="muted"></p>
+        <div id="peopleTable" class="table-wrap"></div>
+        <div id="peoplePager" class="pager"></div>
+      </div>
+
+      <div class="card">
+        <div class="kicker">Event tools</div>
+        <div class="actions">
+          <button class="btn secondary" onclick="showReport()">View / print report</button>
+          <button class="btn secondary" onclick="download('/api/export/people','people.csv')">Export people CSV</button>
+          <button class="btn secondary" onclick="download('/api/export/attendance','attendance.csv')">Export attendance CSV</button>
+          <button class="btn secondary" onclick="download('/api/backup','checker-backup.json')">Download event backup</button>
+          <button class="btn danger" onclick="openNewEventFlow()">New event</button>
+        </div>
+
+        <h3>Restore backup</h3>
+        <textarea id="restoreText" placeholder="Paste full backup JSON here while paused"></textarea>
+        <div class="actions" style="margin-top:12px;">
+          <button class="btn danger" onclick="restoreBackup()">Validate and restore pasted backup</button>
+        </div>
+        <div id="report" class="report"></div>
+      </div>
+    </section>
+
+    <section id="assignment" class="page hidden">
+      <div class="page-header">
+        <h2>Assignment</h2>
+        <div class="instruction">Assign RFID cards and manage unassigned people.</div>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <button class="btn secondary" onclick="openPerson()">Add person</button>
+          <button class="btn secondary" onclick="toggle('importBox')">Import CSV</button>
+          <select id="fastScope">
+            <option value="all">All</option>
+            <option value="participant">Participants</option>
+            <option value="oc">OC</option>
+          </select>
+          <button class="btn primary" onclick="startFast()">Start fast assignment</button>
+          <button class="btn secondary" onclick="setMode('IDLE')">End assignment / pause</button>
+        </div>
+        <div id="assignSummary" class="mini-note"></div>
+        <div id="singleAssignStatus" class="assignment-status hidden"></div>
+      </div>
+
+      <div id="importBox" class="card hidden">
+        <div class="kicker">Import CSV</div>
+        <p class="muted">Headers: name,type,rfid. Import requires Paused and adds people; it does not replace the roster.</p>
+        <textarea id="csvText">name,type,rfid
+Ahmed Ben Ali,participant,
+Nour Trabelsi,oc,
+</textarea>
+        <div class="actions" style="margin-top:12px;">
+          <button class="btn primary" onclick="importCsv()">Preview and import</button>
+        </div>
+      </div>
+
+      <div id="fastBox" class="card"></div>
+
+      <div class="card">
+        <div class="toolbar">
+          <input id="assignSearch" placeholder="Search assignment roster" oninput="resetAssignPage()">
+        </div>
+        <div id="assignTable" class="table-wrap"></div>
+        <div id="assignPager" class="pager"></div>
+      </div>
+    </section>
+
+    <section id="checkin" class="page hidden">
+      <div class="page-header">
+        <h2>Check-in</h2>
+        <div class="instruction">Use the active scanner mode and recent attendance to process visitors.</div>
+      </div>
+
+      <div class="card">
+        <div class="actions">
+          <button class="btn primary" onclick="setMode('CHECK_IN')">Start check-in</button>
+          <button class="btn secondary" onclick="setMode('IDLE')">Pause check-in</button>
+        </div>
+        <p id="ready" class="pill"></p>
+        <div id="scanResult" class="scan"></div>
+      </div>
+
+      <div id="checkSummary" class="grid"></div>
+
+      <div class="card">
+        <div class="kicker">Find a person</div>
+        <div class="toolbar">
+          <input id="manualSearch" placeholder="Search name" oninput="resetManualPage()">
+          <button class="btn secondary" onclick="openPerson()">Add person</button>
+        </div>
+        <div id="manualList" class="table-wrap"></div>
+        <div id="manualPager" class="pager"></div>
+      </div>
+
+      <div class="card">
+        <div class="kicker">Recent attendance</div>
+        <div id="recent"></div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="personDlg">
+    <form method="dialog" class="dialog-inner">
+      <h3 id="personTitle">Person</h3>
+      <div class="dialog-body">
+        <input type="hidden" id="pid">
+        <label>
+          Name
+          <input id="pname" required maxlength="80">
+        </label>
+        <label>
+          Type
+          <select id="ptype">
+            <option value="participant">Participant</option>
+            <option value="oc">OC</option>
+          </select>
+        </label>
+        <label>
+          RFID UID
+          <input id="puid" placeholder="Optional, e.g. 04A1B2C3">
+        </label>
+        <p class="muted">Leave RFID blank for without RFID. Card assignment is saved only after storage confirms it.</p>
+        <p id="personError" class="field-error" aria-live="polite"></p>
+      </div>
+      <div class="dialog-actions">
+        <button id="personSaveBtn" type="button" class="btn primary" onclick="savePerson(false)">Save</button>
+        <button id="personSaveCheckBtn" type="button" class="btn secondary" onclick="savePerson(true)">Save and check in</button>
+        <button type="button" class="btn" value="cancel" onclick="personDlg.close()">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="eventDlg" class="wide-dialog" aria-labelledby="eventDlgTitle">
+    <form method="dialog" class="dialog-inner">
+      <h3 id="eventDlgTitle">Create event</h3>
+      <div class="dialog-body">
+        <label>
+          Event name
+          <input id="eventDlgName" maxlength="80" required>
+          <span id="eventNameError" class="field-error" aria-live="polite"></span>
+        </label>
+        <label>
+          Event date
+          <input id="eventDlgDate" type="date">
+        </label>
+        <p id="eventDlgNote" class="muted">Time source: PC server clock.</p>
+        <p id="eventDlgError" class="field-error" aria-live="polite"></p>
+      </div>
+      <div class="dialog-actions">
+        <button id="eventCreateBtn" type="button" class="btn primary" onclick="submitEventDialog()">Create event</button>
+        <button type="button" class="btn" value="cancel" onclick="eventDlg.close()">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="confirmDlg" aria-labelledby="confirmTitle">
+    <form method="dialog" class="dialog-inner">
+      <h3 id="confirmTitle">Confirm action</h3>
+      <p id="confirmMessage" class="muted"></p>
+      <div class="dialog-actions">
+        <button id="confirmYes" class="btn danger" value="confirm">Confirm</button>
+        <button id="confirmNo" class="btn" value="cancel">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script>
+    let status={},people=[],page='dashboard',lastPeopleRev=0,pollBusy=false,eventDialogMode='create',busy=false,toastTimer=0,peoplePage=1,assignPage=1,manualPage=1,listPageSize=10;
+    function esc(s){return (s??'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+    async function api(path,opt={}){let r=await fetch(path,{...opt,headers:{'Content-Type':'application/json',...(opt.headers||{})}});let t=await r.text(),j={};if(t){try{j=JSON.parse(t)}catch{if(!r.ok)throw Error(t||r.statusText);throw Error('Server returned an invalid response')}}if(!r.ok||j.ok===false)throw Error(j.error||t||r.statusText);return j}
+    function notify(message,tone='success'){toast.textContent=message;toast.className='toast '+tone;clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.add('hidden'),3600)}
+    function showFormError(id,message){let el=document.getElementById(id);if(el)el.textContent=message||''}
+    function setBusy(value){busy=value;document.querySelectorAll('#eventDlg .btn,#personDlg .btn').forEach(b=>b.disabled=value)}
+    function confirmAction({title='Confirm action',message='',confirmText='Confirm',danger=true}={}){return new Promise(resolve=>{confirmTitle.textContent=title;confirmMessage.textContent=message;confirmYes.textContent=confirmText;confirmYes.className='btn '+(danger?'danger':'primary');confirmDlg.returnValue='cancel';confirmDlg.onclose=()=>resolve(confirmDlg.returnValue==='confirm');confirmDlg.showModal();confirmYes.focus()})}
+    async function showPage(p){if(status.mode==='ASSIGN_FAST'&&page==='assignment'&&p!=='assignment'){let ok=await confirmAction({title:'End fast assignment?',message:'End assignment and leave this page?',confirmText:'End assignment'});if(!ok)return;await setMode('IDLE')}page=p;document.querySelectorAll('.page').forEach(x=>x.classList.add('hidden'));document.getElementById(p).classList.remove('hidden');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));document.getElementById('nav-'+p).classList.add('active');renderAll()}
+    function cls(ok,warn){return 'pill '+(ok?'ok':warn?'warn':'bad')}
+    function readerTitle(d){if(!d)return 'No device heartbeat received';return `RFID diagnostics\npolls: ${d.rfidPollCount||0}\nblocked: ${d.rfidBlockedCount||0}\nreason: ${d.rfidBlockReason||''}\nRC522: ${d.rfidVersion||'unknown'} failures=${d.rfidFailureCount||0}\nreads: ${d.rfidReadSuccess||0}/${d.rfidReadAttempts||0}\nlast UID: ${d.lastSuccessfulUid||'none'}\nrecoveries: ${d.rfidRecoveries||0}\nheld: ${d.cardHeld?'yes':'no'} pending: ${d.pendingScan?'yes':'no'}`}
+    function applyStatus(s){status=s;document.getElementById('conn').textContent='Connected';document.getElementById('conn').className='pill ok';document.getElementById('eventLine').textContent=s.eventName?(s.eventName+' · '+(s.eventDate||'No date')):'No event created';document.getElementById('state').textContent=s.modeLabel+' · rev '+s.stateRev;document.getElementById('state').className=cls(s.mode==='CHECK_IN',s.mode!=='IDLE');document.getElementById('reader').textContent=s.readerStatus;document.getElementById('reader').title=readerTitle(s.device);document.getElementById('reader').className=cls(s.readerReady,!s.readerReady);document.getElementById('setup').classList.toggle('hidden',!!s.eventName);document.getElementById('newEventTopBtn').textContent=s.eventName?'New event':'Create event';document.getElementById('ready').textContent=s.readyText;document.getElementById('ready').className=cls(s.readyText==='Ready to scan',s.readyText.includes('wait'));document.getElementById('scanResult').textContent=s.lastPhysicalResult||'No card result yet';renderSummary(s.summary);renderSingleAssignStatus();if(s.peopleRev!==lastPeopleRev)loadPeople();else renderAll()}
+    async function poll(){if(pollBusy)return;pollBusy=true;try{applyStatus(await api('/api/status'))}catch(e){document.getElementById('conn').textContent='Connection lost';document.getElementById('conn').className='pill bad'}finally{pollBusy=false;setTimeout(poll,document.hidden?2500:800)}}
+    async function loadPeople(){try{let j=await api('/api/people');people=j.people;lastPeopleRev=j.peopleRev;renderAll()}catch(e){notify(e.message,'error')}}
+    function renderSummary(m){let html=[['Registered',m.total],['Present',m.present],['Absent',m.absent],['Participants',m.partPresent+'/'+m.partTotal],['OC',m.ocPresent+'/'+m.ocTotal]].map(x=>`<div class=card><div class=muted>${x[0]}</div><div class=metric>${x[1]}</div></div>`).join('');document.getElementById('summary').innerHTML=html;document.getElementById('checkSummary').innerHTML=html;document.getElementById('assignSummary').innerHTML=`${m.total} people · ${m.assigned} assigned · ${m.unassigned} unassigned`; }
+    function filtered(){let q=document.getElementById('search').value.toLowerCase(),tf=document.getElementById('typeFilter').value,af=document.getElementById('attFilter').value;return people.filter(p=>(!q||p.name.toLowerCase().includes(q))&&(tf==='All'||(tf==='Participants'?p.type==='participant':p.type==='oc'))&&(af==='All'||(af==='Present'?p.present:!p.present))) }
+    function pageRows(rows,current){let pages=Math.max(1,Math.ceil(rows.length/listPageSize)),page=Math.min(Math.max(1,current),pages),start=(page-1)*listPageSize;return {page,pages,rows:rows.slice(start,start+listPageSize)}}
+    function pagerHtml(total,page,pages,fn){return total>listPageSize?`<span class=muted>Page ${page} of ${pages}</span><button class=btn onclick="${fn}(-1)" ${page===1?'disabled':''}>Previous</button><button class=btn onclick="${fn}(1)" ${page===pages?'disabled':''}>Next</button>`:''}
+    function resetPeoplePage(){peoplePage=1;renderPeople()}
+    function changePeoplePage(delta){peoplePage+=delta;renderPeople()}
+    function renderPeople(){let rows=filtered(),paged=pageRows(rows,peoplePage);peoplePage=paged.page;document.getElementById('matchCount').textContent=`${rows.length} matching rows. Summary totals are whole-event totals.`;document.getElementById('peopleTable').innerHTML=table(paged.rows,true);document.getElementById('peoplePager').innerHTML=pagerHtml(rows.length,peoplePage,paged.pages,'changePeoplePage')}
+    function table(rows,actions){return `<table><thead><tr><th>Name</th><th>Type</th><th>RFID</th><th>Attendance</th><th>Check-in time</th><th>Method</th><th>Actions</th></tr></thead><tbody>${rows.map(p=>`<tr><td>${esc(p.name)} <span class=muted>${p.id}</span></td><td>${p.type==='oc'?'OC':'Participant'}</td><td>${esc(p.uid||'Unassigned')}</td><td>${p.present?'Present':'Absent'}</td><td>${esc(p.timeText||'')}</td><td>${esc(p.method||'')}</td><td class=actions>${actions?personActions(p):assignActions(p)}</td></tr>`).join('')}</tbody></table>`}
+    function personActions(p){return `${p.present?`<button class=btn onclick="undo('${p.id}')">Undo check-in</button>`:`<button class=btn onclick="manualIn('${p.id}')">Check in manually</button>`}<button class=btn onclick="openPerson('${p.id}')">Edit person</button>`}
+    function assignActions(p){return `<button class=btn onclick="openPerson('${p.id}')">Edit</button><button class=btn onclick="singleAssign('${p.id}')">${p.uid?'Change':'Assign'}</button>${p.uid?`<button class=btn onclick="unassign('${p.id}')">Unassign</button>`:''}`}
+    function resetAssignPage(){assignPage=1;renderAssign()}
+    function changeAssignPage(delta){assignPage+=delta;renderAssign()}
+    function renderAssign(){let q=(document.getElementById('assignSearch')?.value||'').toLowerCase(),rows=people.filter(p=>!q||p.name.toLowerCase().includes(q)),paged=pageRows(rows,assignPage);assignPage=paged.page;document.getElementById('assignTable').innerHTML=table(paged.rows,false);document.getElementById('assignPager').innerHTML=pagerHtml(rows.length,assignPage,paged.pages,'changeAssignPage')}
+    function resetManualPage(){manualPage=1;renderManual()}
+    function changeManualPage(delta){manualPage+=delta;renderManual()}
+    function renderManual(){let q=document.getElementById('manualSearch').value.toLowerCase(),rows=people.filter(p=>!q||p.name.toLowerCase().includes(q)),paged=pageRows(rows,manualPage);manualPage=paged.page;document.getElementById('manualList').innerHTML=table(paged.rows,true);document.getElementById('manualPager').innerHTML=pagerHtml(rows.length,manualPage,paged.pages,'changeManualPage')}
+    function renderSingleAssignStatus(){let box=document.getElementById('singleAssignStatus');if(!box)return;if(status.mode!=='ASSIGN_SINGLE'){box.classList.add('hidden');box.innerHTML='';return}box.classList.remove('hidden');box.innerHTML=`<h3>Ready to assign a card</h3><p><strong>${esc(status.assignName||'Selected person')}</strong></p><p class=muted>Scan a card, or enter its UID in Edit person.</p>`}
+    function renderFast(){let box=document.getElementById('fastBox');if(status.mode!=='ASSIGN_FAST'){box.innerHTML='<span class=muted>No active fast assignment.</span>';return}box.innerHTML=`<h3>Fast assignment active</h3><p class=big>${esc(status.assignName||'Finished')}</p><p>${status.fastIndex+1} / ${status.fastTotal} · assigned ${status.fastAssigned} · skipped ${status.fastSkipped}</p><p>${esc(status.lastPhysicalResult||'Ready - scan a card')}</p><button class=btn onclick="fastSkip()">Skip</button> <button class=btn onclick="fastUndo()">Undo last assignment</button> <button class="btn danger" onclick="setMode('IDLE')">End assignment</button>`}
+    function renderRecent(){document.getElementById('recent').innerHTML=(status.recent||[]).map(x=>`<div>${esc(x)}</div>`).join('')}
+    function renderAll(){renderPeople();renderAssign();renderManual();renderFast();renderRecent();renderSingleAssignStatus()}
+    function openPerson(id=''){let p=people.find(x=>x.id===id)||{};pid.value=p.id||'';pname.value=p.name||'';ptype.value=p.type||'participant';puid.value=p.uid||'';personTitle.textContent=id?'Edit person':'Add person';showFormError('personError','');personDlg.showModal();pname.focus()}
+    async function savePerson(check){if(busy)return;showFormError('personError','');try{setBusy(true);let body={id:pid.value,name:pname.value,type:ptype.value,uid:puid.value,checkIn:check};let j=await api('/api/people/save',{method:'POST',body:JSON.stringify(body)});personDlg.close();applyStatus(j.status);await loadPeople();notify('Person saved.')}catch(e){showFormError('personError',e.message)}finally{setBusy(false)}}
+    async function saveEvent(){eventDialogMode='create';eventDlgName.value=eventName.value;eventDlgDate.value=eventDate.value;await submitEventDialog()}
+    function openEventDialog(mode='create'){eventDialogMode=mode;eventDlgTitle.textContent=mode==='new'?'Create new event':'Create event';eventCreateBtn.textContent=mode==='new'?'Create new event':'Create event';eventDlgName.value='';eventDlgDate.value='';showFormError('eventNameError','');showFormError('eventDlgError','');eventDlg.showModal();eventDlgName.focus()}
+    async function openNewEventFlow(){if(status.eventName){let ok=await confirmAction({title:'Create new event?',message:'This starts a new empty event. Download a backup first if you need the current records.',confirmText:'Create new event'});if(!ok)return;openEventDialog('new')}else openEventDialog('create')}
+    async function submitEventDialog(){if(busy)return;showFormError('eventNameError','');showFormError('eventDlgError','');let name=eventDlgName.value.trim(),date=eventDlgDate.value;if(!name){showFormError('eventNameError','Event name is required');eventDlgName.focus();return}try{setBusy(true);let path=eventDialogMode==='new'?'/api/new-event':'/api/event';let j=await api(path,{method:'POST',body:JSON.stringify({name,date})});eventDlg.close();applyStatus(j.status);await loadPeople();notify(eventDialogMode==='new'?'New event created.':'Event created.')}catch(e){showFormError('eventDlgError',e.message)}finally{setBusy(false)}}
+    async function setMode(m){try{applyStatus((await api('/api/scanner/mode',{method:'POST',body:JSON.stringify({mode:m,stateRev:status.stateRev})})).status)}catch(e){notify(e.message,'error')}}
+    async function manualIn(id){try{applyStatus((await api('/api/checkin',{method:'POST',body:JSON.stringify({id})})).status);await loadPeople()}catch(e){notify(e.message,'error')}}
+    async function undo(id){let p=people.find(x=>x.id===id);let ok=await confirmAction({title:'Undo check-in?',message:'Undo check-in for '+(p?p.name:'this person')+'?',confirmText:'Undo check-in'});if(!ok)return;try{applyStatus((await api('/api/undo',{method:'POST',body:JSON.stringify({id})})).status);await loadPeople();notify('Check-in undone.')}catch(e){notify(e.message,'error')}}
+    async function singleAssign(id){try{applyStatus((await api('/api/assignment/single',{method:'POST',body:JSON.stringify({id,stateRev:status.stateRev})})).status);renderSingleAssignStatus()}catch(e){notify(e.message,'error')}}
+    async function unassign(id){let ok=await confirmAction({title:'Unassign card?',message:'Unassign this card? Attendance will stay unchanged.',confirmText:'Unassign card'});if(!ok)return;try{let p=people.find(x=>x.id===id);p.uid='';await api('/api/people/save',{method:'POST',body:JSON.stringify(p)});await loadPeople();poll();notify('Card unassigned.')}catch(e){notify(e.message,'error')}}
+    async function startFast(){try{applyStatus((await api('/api/assignment/fast/start',{method:'POST',body:JSON.stringify({scope:fastScope.value,stateRev:status.stateRev})})).status)}catch(e){notify(e.message,'error')}}
+    async function fastSkip(){try{applyStatus((await api('/api/assignment/fast/skip',{method:'POST',body:'{}'})).status)}catch(e){notify(e.message,'error')}}
+    async function fastUndo(){try{applyStatus((await api('/api/assignment/fast/undo',{method:'POST',body:'{}'})).status);await loadPeople()}catch(e){notify(e.message,'error')}}
+    async function recoverReader(){try{let r=await api('/api/device/recover-reader',{method:'POST',body:'{}'});notify(r.message);applyStatus(r.status)}catch(e){notify(e.message,'error')}}
+    async function importCsv(){try{let j=await fetch('/api/import',{method:'POST',headers:{'Content-Type':'text/plain'},body:csvText.value});let r=await j.json();if(!r.ok)throw Error(r.error);notify(r.message);applyStatus(r.status);await loadPeople()}catch(e){notify(e.message,'error')}}
+    async function restoreBackup(){let ok=await confirmAction({title:'Restore backup?',message:'Replace current event with this backup? This requires Paused mode.',confirmText:'Restore backup'});if(!ok)return;try{let r=await api('/api/restore',{method:'POST',body:restoreText.value});notify(r.message);applyStatus(r.status);await loadPeople()}catch(e){notify(e.message,'error')}}
+    function download(url,name){location.href=url}
+    async function showReport(){let t=await (await fetch('/api/report')).text();report.innerHTML=t+'<p class=noprint><button class="btn primary" onclick="print()">Print / Save as PDF</button></p>'}
+    function toggle(id){document.getElementById(id).classList.toggle('hidden')}
+    showPage('dashboard');poll();
+  </script>
+</body>
+</html>
+
