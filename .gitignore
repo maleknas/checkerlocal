@@ -17,3 +17,6 @@ __pycache__/
 *.pyc
 # Unrelated local video-editing workspace.
 /work/
+# Generated presentation exports, temporary tooling, and local demo artifacts.
+/output/
+/tmp/
